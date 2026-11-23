@@ -233,10 +233,10 @@ Every single issue documented below was observed and resolved during real-world 
 ---
 
 ### 2. Issue: TV GUI Has No DNS Option / Mistaking Router IP for STB
-- **Symptom:** User cannot find a DNS entry field under TV Wi-Fi settings, or tries connecting ADB to `192.168.31.1:5555` / `192.168.29.1:5555` (timeout 10060).
+- **Symptom:** User cannot find a DNS entry field under TV Wi-Fi settings, or tries connecting ADB to `192.168.x.1:5555` (timeout 10060).
 - **Root Cause:** 
   1. In Android TV 11, setting a custom DNS under Wi-Fi requires selecting "Static IP" and clicking through a multi-step wizard (IP $\rightarrow$ Gateway $\rightarrow$ Network Prefix $\rightarrow$ DNS 1). Missing any field causes network disconnect.
-  2. `192.168.31.1` or `192.168.29.1` is the home Wi-Fi gateway router, not the STB.
+  2. `192.168.x.1` is the home Wi-Fi gateway router, not the STB.
 - **Permanent Fix:** Use the **Direct Ethernet Lab**. By connecting an RJ45 cable between PC and STB, `captive_lab.py` automatically acts as a DHCP server, assigns `192.168.50.2` to the STB, and injects `192.168.50.1` as the primary DNS server. Zero manual configuration on TV needed!
 
 ---

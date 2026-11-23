@@ -9,7 +9,7 @@ set -e
 
 echo "[*] Checking ADB connection..."
 adb connect 192.168.50.2:5555 2>/dev/null || true
-adb connect 192.168.31.113:5555 2>/dev/null || true
+if [ -n "$1" ]; then adb connect "$1:5555" 2>/dev/null || true; fi
 adb wait-for-device
 
 echo "[*] Re-installing uninstalled apps for user 0..."

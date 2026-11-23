@@ -14,7 +14,8 @@ if (Test-Path (Join-Path $PSScriptRoot "bin\adb.exe")) {
 
 Write-Host "[*] Checking ADB connection..." -ForegroundColor Cyan
 & $adb connect 192.168.50.2:5555 2>$null
-& $adb connect 192.168.31.113:5555 2>$null
+# Connect via Wi-Fi if custom IP provided
+if ($args[0]) { & $adb connect "$($args[0]):5555" 2>$null }
 & $adb wait-for-device
 
 Write-Host "[*] Re-installing uninstalled apps for user 0..." -ForegroundColor Cyan
