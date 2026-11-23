@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs and runtime PID files
+*.log
+*.pid
+captive-lab.pid
+captive_lab.log
+mock_acs.log
+mock_acs_packets.log
+
+# Operating System Files
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Temporary & Unrelated Projects
+liquid_music_app/
+vending_apk/
+sideload-jiostb/
+*.tmp
+*.bak
