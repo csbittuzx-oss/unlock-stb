@@ -92,7 +92,8 @@ $telemetryPackages = @(
     "com.netflix.partnertoken",
     "com.jio.dialserver",
     "com.omni.simplesetup",
-    "com.jio.universalsetup"
+    "com.jio.universalsetup",
+    "com.jio.screensaver"
 )
 
 foreach ($pkg in ($otaPackages + $telemetryPackages)) {
@@ -169,6 +170,10 @@ Write-Host "`n[*] [STEP 4/4] Applying Performance & Smoothness Tweaks..." -Foreg
 & $adb shell settings put global transition_animation_scale 0.5
 & $adb shell settings put global animator_duration_scale 0.5
 & $adb shell settings put system screen_off_timeout 7200000
+& $adb shell settings put secure screensaver_enabled 0 2>$null
+& $adb shell settings put secure screensaver_activate_on_sleep 0 2>$null
+& $adb shell settings put secure screensaver_activate_on_dock 0 2>$null
+& $adb shell settings delete secure screensaver_components 2>$null
 
 # Wake up screen and press home
 & $adb shell input keyevent KEYCODE_WAKEUP 2>$null
