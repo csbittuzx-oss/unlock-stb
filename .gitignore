@@ -22,5 +22,13 @@ $RECYCLE.BIN/
 liquid_music_app/
 vending_apk/
 sideload-jiostb/
+hotstar_apks/
+netmix_apks/
+sftv_apks/
+spotify_apks/
+youtube_apks/
+current_tv_screen*.png
+netmirror-tv.apk
+aptoide-tv.apk
 *.tmp
 *.bak
