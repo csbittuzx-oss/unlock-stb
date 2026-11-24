@@ -156,67 +156,85 @@ This repository replaces all of that with a **Zero-Dependency, Direct-Ethernet S
 
 ## Antigravity AI Agent Integration & Master Prompt
 
-This repository is optimized for autonomous execution via **Antigravity**. You do not need to manually configure commands or parse error logs.
+This repository is built for **100% autonomous, hands-off execution via Antigravity (or any advanced AI coding agent)**. You do not need to manually configure IP addresses, parse log files, or execute shell commands yourself.
 
-### How Antigravity Executes the Pipeline
-When running inside Antigravity:
-1. **Environment Audit:** Antigravity inspects network adapters, checks for port conflicts, verifies Python installation, and selects the proper certificate chains.
-2. **Background Process Management:** Antigravity starts `captive_lab.py` and `mock_acs_universal.py` as managed background tasks, monitoring `captive_lab.log` and `mock_acs.log` in real time.
-3. **Reactive Triggering:** Upon detecting the STB's CWMP Inform and the subsequent `USBDebugging` parameter confirmation, Antigravity executes ADB handshakes without delay.
-4. **Debloat & Customization:** Antigravity runs package management operations, validates that the custom launcher takes precedence, and verifies UI response.
-5. **Network Restoration:** Antigravity cleans up network interfaces and resets the host adapter to DHCP.
+### How Antigravity Executes the Pipeline Autonomously
+When given the master prompt below, Antigravity will:
+1. **Clone & Target Workspace:** Utilize the repository at `https://github.com/csbittuzx-oss/unlock-stb.git` and its included zero-dependency tools (`bin\adb.exe`, `mock_acs_universal.py`, `captive_lab.py`, verified APKs in `apks/`).
+2. **Environment & Port Conflict Resolution:** Automatically inspect network adapters, identify the connected Ethernet interface, clear conflicting UDP/TCP ports (53, 67, 123, 8443, 9443), and adjust Windows Defender firewall rules.
+3. **Background Lab Management:** Launch `captive_lab.py` and `mock_acs_universal.py` as asynchronous background tasks, monitor logs in real time, and prompt you only when it is time to physically power-cycle the STB.
+4. **Reactive Handshake & ADB Connect:** Intercept the TR-069 `Inform` request, push the `USBDebugging` activation payload, verify the STB on `192.168.50.2:5555`, and establish an authenticated ADB session.
+5. **Debloat & Security Hardening:** Permanently block FOTA/TR-069 update daemons, disable 24+ telemetry trackers and aggressive memory killers, and uninstall stock bloatware.
+6. **Launcher & Sideload Lock Bypass:** Install your choice of Android TV launcher (Elyvon/Monet), lock it as default home, disable stock Jio launcher, install Aurora Store, and deploy **Shizuku + Shizuku Package Installer** (pre-authorizing permissions and disabling the carrier's suppressed installer) so that USB, Send Files to TV, X-plore, and Aptoide TV APK installations work out of the box.
+7. **Host Network Restoration & Verification:** Restore your PC's Ethernet adapter back to automatic DHCP and confirm custom launcher operation.
 
 ---
 
-### The Single Master Prompt for Antigravity
+### The Single Autonomous Master Prompt for Antigravity
 
-Copy and paste the following prompt directly into Antigravity:
+Copy and paste the following prompt directly into your AI agent:
 
 ````markdown
 <TASK>
-You are an expert Android embedded systems engineer and network protocol analyst.
-Execute the end-to-end unlock, debloat, and custom launcher installation for the connected Jio Set-Top Box (JMS/JHS series) in this workspace.
+You are an expert autonomous Android embedded systems engineer, network protocol analyst, and device automation agent.
+Your objective is to execute the end-to-end unlock, permanent debloat, custom launcher installation, and carrier sideload lock bypass for the connected Jio Set-Top Box (Skyworth JMS series / Iwedia JHS series) using the tools, scripts, and APKs in this repository:
+https://github.com/csbittuzx-oss/unlock-stb.git
 
-Execute following these strict operational phases:
+OPERATIONAL PRINCIPLES:
+- Execute all phases autonomously without requiring manual user intervention or manual terminal execution.
+- If errors, port conflicts, or missing permissions occur, diagnose and resolve them automatically.
+- The ONLY time you should pause or prompt the user is during PHASE 2 when the physical power cable of the STB needs to be unplugged and reconnected.
+
+Execute strictly according to these operational phases:
 
 PHASE 1: ENVIRONMENT & NETWORK AUDIT
-1. Check available network adapters and identify the wired Ethernet or USB-to-Ethernet adapter connected to the Jio STB.
-2. Ensure ports 53, 67, 123, 8443, and 9443 are free. Stop conflicting services (w32time, SharedAccess, Technitium) if necessary.
-3. Inspect the STB model if previously known, or prepare universal ACS supporting both Skyworth (JMS series / RILROOTCA / acs_chain.pem) and Iwedia (JHS series / eMudhra / forged_chain.pem).
+1. Verify the current workspace contains the unlock-stb repository tools (`mock_acs_universal.py`, `captive_lab.py`, `bin\adb.exe`, `1CLICK_POST_ADB_SETUP.ps1`, `apks/`).
+2. Scan active network interfaces on the host machine to identify the wired Ethernet or USB-to-Ethernet adapter physically connected to the Jio STB.
+3. Verify that UDP ports 53 (DNS), 67 (DHCP), 123 (NTP) and TCP ports 8443, 9443 (HTTPS ACS) are unblocked. Automatically terminate any conflicting local services (e.g. w32time, Internet Connection Sharing, local DNS listeners) if necessary.
 
-PHASE 2: CAPTIVE LAB & ACS LAUNCH
-1. Configure host Ethernet interface to IP 192.168.50.1/24. Add temporary firewall rules allowing inbound UDP (53, 67, 123) and TCP (8443, 9443).
-2. Launch `mock_acs_universal.py` with the appropriate model flag in the background.
-3. Launch `captive_lab.py` in the background to handle captive DHCP and DNS spoofing (*.jio.com -> 192.168.50.1).
-4. Prompt or instruct to power-cycle the STB (unplug power cable, wait 5 seconds, reconnect).
-5. Monitor logs until the STB sends an Inform request, performs HTTP Digest Authentication, and accepts the SetParameterValues SOAP payload (USBDebugging=true, FOTA.Disable=true).
+PHASE 2: CAPTIVE LAB SETUP & ACS LAUNCH
+1. Configure the identified host Ethernet adapter with static IP `192.168.50.1`, subnet mask `255.255.255.0` (flush existing default routes on that adapter to avoid host routing issues).
+2. Configure host firewall rules to allow inbound traffic on UDP 53, 67, 123 and TCP 8443, 9443.
+3. Launch `captive_lab.py` as an asynchronous background task to provide captive DHCP (leasing `192.168.50.2` to the STB) and DNS spoofing (`*.jio.com` -> `192.168.50.1`).
+4. Launch `mock_acs_universal.py` with appropriate certificate parameters in the background to handle the TR-069 HTTPS CWMP session.
+5. Instruct the user clearly: "Please unplug the power cable from the back of your Jio STB, wait 5 seconds, and plug it back in."
+6. Monitor `captive_lab.log` and `mock_acs.log` in real time. Wait for the STB to boot, issue a DHCP request, query DNS, initiate the TLS handshake, perform HTTP Digest Authentication, and receive the SetParameterValues SOAP payload enabling `USBDebugging` and disabling `FOTA`.
 
-PHASE 3: ADB CONNECTION & VERIFICATION
-1. Verify STB receives IP 192.168.50.2.
-2. Execute `bin\adb.exe connect 192.168.50.2:5555`.
-3. Verify ADB authorization by running `adb devices` and query device properties (`ro.product.model`, `ro.build.version.release`, `ro.build.display.id`).
+PHASE 3: ADB CONNECTION & DEVICE VERIFICATION
+1. Confirm the STB is online at `192.168.50.2`.
+2. Connect ADB: `bin\adb.exe connect 192.168.50.2:5555`.
+3. Query device properties via `adb shell getprop` to record `ro.product.model`, `ro.build.version.release`, `ro.build.display.id`, and `ro.boot.vbmeta.device_state`.
 
-PHASE 4: SYSTEM DEBLOAT & SECURITY HARDENING
-1. Block OTA updates: Disable `com.jio.httpupdate`, `com.jio.usbupdate`, `com.jio.tr069client`, `com.rjil.jio.stb.commandreceiver`, `com.jio.backgroundscheduler`, `com.jio.stbadservice` via `pm disable-user --user 0`.
-2. Disable background telemetry and aggressive task killers:
-   - `com.teamviewer.quicksupport.addon.jio_stb`, `com.rjil.podlogservice`, `com.jio.systemstats`, `com.jio.stb.remotediagnose`
-   - `com.jio.smartmemorymanager`, `com.jio.appoptimizer`, `com.jio.bioscopecontentservice`, `com.jio.product.exploremyremote`, `com.jio.stb.bot`, `com.jio.stbwidget`
-   - `com.jio.web`, `com.media.jio.sso.stb`, `com.jio.profileutility`, `com.netflix.partnertoken`, `com.jio.dialserver`, `com.omni.simplesetup`, `com.jio.universalsetup`
-3. Restrict background execution for all above packages: `cmd appops set <package> RUN_IN_BACKGROUND ignore` and `cmd appops set <package> RUN_ANY_IN_BACKGROUND ignore`.
-4. Uninstall non-essential bloat: `com.jio.store`, `com.jio.stb.catv`, `com.netflix.ninja` for user 0.
+PHASE 4: SYSTEM DEBLOAT & UPDATE IMMUNIZATION
+1. Immunize against remote bricking & OTA updates by disabling all update daemons for user 0:
+   `com.jio.httpupdate`, `com.jio.usbupdate`, `com.jio.tr069client`, `com.rjil.jio.stb.commandreceiver`, `com.jio.backgroundscheduler`, `com.jio.stbadservice`
+2. Disable aggressive background task killers, telemetry loggers, and diagnostic spies:
+   `com.teamviewer.quicksupport.addon.jio_stb`, `com.rjil.podlogservice`, `com.jio.systemstats`, `com.jio.stb.remotediagnose`, `com.jio.smartmemorymanager`, `com.jio.appoptimizer`, `com.jio.bioscopecontentservice`, `com.jio.product.exploremyremote`, `com.jio.stb.bot`, `com.jio.stbwidget`, `com.jio.web`, `com.media.jio.sso.stb`, `com.jio.profileutility`, `com.netflix.partnertoken`, `com.jio.dialserver`, `com.omni.simplesetup`, `com.jio.universalsetup`
+3. Restrict background AppOps execution for all disabled packages (`RUN_IN_BACKGROUND ignore`, `RUN_ANY_IN_BACKGROUND ignore`).
+4. Remove pre-installed non-essential user bloatware:
+   `com.jio.store`, `com.jio.stb.catv`, `com.netflix.ninja` via `pm uninstall -k --user 0`.
 
-PHASE 5: LAUNCHER REPLACEMENT & APP STORE SETUP
-1. Install Elyvon Launcher (`apks/elyvon-launcher.apk`) or Monet Launcher (`apks/monet-launcher.apk`).
-2. Grant `WRITE_SECURE_SETTINGS` to the installed launcher.
-3. Set the installed launcher as default home activity: `cmd package set-home-activity <package>/<activity>`.
-4. Suspend and disable stock Jio launcher: `pm disable-user --user 0 com.iwedia.ui.rjio.launcher.reliance` and `pm suspend --user 0 com.iwedia.ui.rjio.launcher.reliance`.
-5. Install Aurora Store (`apks/aurora-store.apk`) and Shevery (`apks/shevery-release.apk`). Grant `REQUEST_INSTALL_PACKAGES` to Aurora Store.
-6. Apply performance tweaks: Set window, transition, and animator duration scales to 0.5.
+PHASE 5: LAUNCHER REPLACEMENT & CARRIER SIDELOAD-BYPASS SETUP
+1. Install modern Android TV Launcher:
+   - Sideload `apks/elyvon-launcher.apk` (or `apks/monet-launcher.apk`).
+   - Grant `WRITE_SECURE_SETTINGS` to the launcher.
+   - Lock it as the default system home activity: `cmd package set-home-activity <launcher_component>`.
+   - Suspend and disable stock Jio launcher (`com.iwedia.ui.rjio.launcher.reliance`).
+2. Sideload Aurora Store (`apks/aurora-store.apk`) and grant `REQUEST_INSTALL_PACKAGES` permission via AppOps.
+3. Bypass Carrier Package Installer Lock (`mSuppressAppInstall = true`):
+   - Sideload Shizuku (`apks/shizuku.apk`) and start its daemon using `libshizuku.so` / `/data/local/tmp/shizuku_starter`.
+   - Sideload Shizuku Package Installer (`apks/package-installer.apk`).
+   - Pre-authorize Package Installer in Shizuku's config database (`/data/user_de/0/com.android.shell/shizuku.json` with `flags: 2`).
+   - Grant `REQUEST_INSTALL_PACKAGES`, `MANAGE_EXTERNAL_STORAGE`, and `READ_EXTERNAL_STORAGE` AppOps to Package Installer.
+   - Disable stock suppressed installer: `pm disable-user --user 0 com.android.packageinstaller`.
+   - Verify that `io.github.vvb2060.packageinstaller` is the primary handler for `.apk` installation intents so USB drives, X-plore, Send Files to TV, and Aptoide TV install directly with the TV remote.
+4. Optimize UI fluidity: Set `window_animation_scale`, `transition_animation_scale`, and `animator_duration_scale` to `0.5`.
 
-PHASE 6: RESTORATION & FINAL REPORT
-1. Run network restoration to return host PC Ethernet interface back to DHCP.
-2. Send KEYCODE_HOME to device and verify custom launcher is rendering.
-3. Provide a clear completion report summarizing device status and installed apps.
+PHASE 6: NETWORK RESTORATION & FINAL VALIDATION
+1. Terminate background Python lab servers (`captive_lab.py`, `mock_acs_universal.py`).
+2. Restore host PC Ethernet adapter back to automatic DHCP and remove temporary firewall rules (via `RESTORE_NETWORK.bat`).
+3. Send `KEYCODE_HOME` to the STB and verify that the custom launcher is active and focused.
+4. Deliver a concise final report summarizing device properties, disabled services, and verified capabilities (including USB/Aptoide sideloading status).
 </TASK>
 ````
 
