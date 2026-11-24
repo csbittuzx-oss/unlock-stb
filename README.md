@@ -232,8 +232,7 @@ PHASE 5: LAUNCHER REPLACEMENT & CARRIER SIDELOAD-BYPASS SETUP
    - Sideload Shizuku Package Installer (`apks/package-installer.apk`).
    - Pre-authorize Package Installer in Shizuku's config database (`/data/user_de/0/com.android.shell/shizuku.json` with `flags: 2`).
    - Grant `REQUEST_INSTALL_PACKAGES`, `MANAGE_EXTERNAL_STORAGE`, and `READ_EXTERNAL_STORAGE` AppOps to Package Installer.
-   - Disable stock suppressed installer: `pm disable-user --user 0 com.android.packageinstaller`.
-   - Verify that `io.github.vvb2060.packageinstaller` is the primary handler for `.apk` installation intents so USB drives, X-plore, Send Files to TV, and Aptoide TV install directly with the TV remote.
+   - Verify that `io.github.vvb2060.packageinstaller` is the primary handler for `.apk` installation intents so USB drives, X-plore, Send Files to TV, and Aptoide TV install directly with the TV remote (keep system package installer active so standard app uninstallation remains functional).
 4. Optimize UI fluidity: Set `window_animation_scale`, `transition_animation_scale`, and `animator_duration_scale` to `0.5`.
 
 PHASE 6: NETWORK RESTORATION & FINAL VALIDATION
