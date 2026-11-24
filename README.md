@@ -142,7 +142,8 @@ This repository replaces all of that with a **Zero-Dependency, Direct-Ethernet S
 3. The script will automatically:
    - Permanently disable FOTA & TR-069 background update clients.
    - Disable 24+ telemetry trackers and background RAM throttling services.
-   - Install Aurora Store (Google Play Store client) and Shevery.
+   - Install Aurora Store (Google Play Store client), Shizuku v13.6, and Shizuku Package Installer.
+   - Automatically pre-authorize and configure Shizuku to bypass Jio's hardcoded on-device APK installation lock (`mSuppressAppInstall`).
    - Sideload your chosen launcher and set it as default home activity.
    - Disable stock Jio bloatware launcher (`com.iwedia.ui.rjio.launcher.reliance`).
    - Optimize window animations to `0.5x` for blazing fast responsiveness.
@@ -328,6 +329,17 @@ Every single issue documented below was observed and resolved during real-world 
 
 ---
 
+### 11. Issue: On-Device APK Installation Fails or Exits Instantly (Carrier App Installation Lock)
+- **Symptom:** Opening any APK directly on the TV (via USB drive, Send Files to TV, X-plore, or Aptoide TV) does nothing, flashes a blank screen for a split second, or fails with "Unable to install app". Installing only works when pushed from a computer via `adb install`.
+- **Root Cause:** In Jio's custom Android 11 firmware, the system package installer (`/system/priv-app/PackageInstaller/PackageInstaller.apk`) has been modified by the carrier. Specifically, inside `com.android.packageinstaller.InstallStart`, `mSuppressAppInstall` is hardcoded to `true`. Whenever an APK installation intent (`ACTION_VIEW` / `ACTION_INSTALL_PACKAGE`) is dispatched, `InstallStart.onCreate()` immediately executes `finish()` in 0ms, suppressing all standard sideloading attempts. Because `/system` is protected by AVB 2.0 dm-verity, editing the system APK directly is impossible without bricking the device.
+- **Permanent Fix:** Use **Shizuku** paired with the **Shizuku Package Installer** (`io.github.vvb2060.packageinstaller`):
+  1. Shizuku runs a privileged daemon under ADB/shell UID 2000 (`libshizuku.so`), exposing system package management capabilities without root.
+  2. The Shizuku Package Installer registers as the primary system handler for `application/vnd.android.package-archive` intents.
+  3. When an APK is opened from a USB flash drive, X-plore, Send Files to TV, or Aptoide TV, Shizuku Package Installer intercepts the intent, presents a clean, remote-friendly confirmation dialog, and installs the APK with system privileges.
+  4. Both Shizuku and Package Installer are automatically installed, started, and pre-authorized by `1CLICK_POST_ADB_SETUP.bat`.
+
+---
+
 ## Comprehensive Package Debloat Directory
 
 ### 1. FOTA & OTA Update Blockers (Mandatory)
@@ -386,8 +398,9 @@ All verified APKs are located in the `apks/` directory:
    - Direct Google Play Store access for Android TV apps.
    - Built-in anonymous login (no personal Google account required).
    - Allows downloading YouTube, SmartTube, VLC, MX Player, Plex, and streaming apps.
-3. **Shevery (`apks/shevery-release.apk`):**
-   - On-device terminal and privileged command tool for maintenance directly from the TV remote.
+3. **Shizuku (`apks/shizuku.apk`) & Shizuku Package Installer (`apks/package-installer.apk`):**
+   - **Shizuku (v13.6.0):** Privileged API service that runs an ADB-level daemon in the background to grant system-level capabilities to user apps.
+   - **Shizuku Package Installer (v2.1):** A replacement package installer designed specifically for TV and Android devices. It completely bypasses Jio's hardcoded `mSuppressAppInstall` carrier lock, enabling 100% remote-controlled on-device APK installations from USB flash drives, X-plore, Send Files to TV, and Aptoide TV.
 4. **Monet Launcher (`apks/monet-launcher.apk`):**
    - Alternative Material You dynamic themed Android TV launcher.
 

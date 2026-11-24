@@ -129,11 +129,37 @@ if (Test-Path $auroraApk) {
     & $adb shell appops set com.aurora.store REQUEST_INSTALL_PACKAGES allow 2>$null
 }
 
-# Shevery
-$sheveryApk = Join-Path $apksDir "shevery-release.apk"
-if (Test-Path $sheveryApk) {
-    Write-Host "  -> Installing Shevery Privileged Command Tool..." -ForegroundColor Cyan
-    & $adb install -r -g $sheveryApk 2>$null
+# Shizuku & On-Device Package Installer (Bypasses Carrier App Installation Lock)
+$shizukuApk = Join-Path $apksDir "shizuku.apk"
+$pkgInstallerApk = Join-Path $apksDir "package-installer.apk"
+if (Test-Path $shizukuApk) {
+    Write-Host "  -> Installing Shizuku (v13.6.0)..." -ForegroundColor Cyan
+    & $adb install -r -g $shizukuApk 2>$null
+    
+    # Start Shizuku daemon via ADB
+    Write-Host "  -> Starting Shizuku daemon on STB..." -ForegroundColor Cyan
+    $shizukuLibPath = (& $adb shell "pm path moe.shizuku.privileged.api").Trim() -replace 'package:',''
+    $shizukuLibDir = [System.IO.Path]::GetDirectoryName($shizukuLibPath) + "/lib/arm"
+    & $adb shell "$shizukuLibDir/libshizuku.so" 2>$null
+    & $adb shell "cp $shizukuLibDir/libshizuku.so /data/local/tmp/shizuku_starter && chmod 755 /data/local/tmp/shizuku_starter" 2>$null
+}
+
+if (Test-Path $pkgInstallerApk) {
+    Write-Host "  -> Installing Shizuku Package Installer (Direct TV Remote APK Sideloading)..." -ForegroundColor Cyan
+    & $adb install -r -g $pkgInstallerApk 2>$null
+    
+    # Pre-authorize Package Installer in Shizuku's config database
+    Write-Host "  -> Pre-authorizing Package Installer in Shizuku..." -ForegroundColor Cyan
+    $pkgUid = ((& $adb shell "dumpsys package io.github.vvb2060.packageinstaller | grep userId=").Trim() -replace 'userId=','').Trim()
+    if ($pkgUid) {
+        $shizukuConfig = "{`"version`":2,`"packages`":[{`"uid`":$pkgUid,`"flags`":2,`"packages`":[`"io.github.vvb2060.packageinstaller`"]}]}"
+        & $adb shell "echo '$shizukuConfig' > /data/user_de/0/com.android.shell/shizuku.json && chmod 666 /data/user_de/0/com.android.shell/shizuku.json" 2>$null
+    }
+    
+    # Grant permissions
+    & $adb shell appops set io.github.vvb2060.packageinstaller REQUEST_INSTALL_PACKAGES allow 2>$null
+    & $adb shell appops set io.github.vvb2060.packageinstaller MANAGE_EXTERNAL_STORAGE allow 2>$null
+    & $adb shell appops set io.github.vvb2060.packageinstaller READ_EXTERNAL_STORAGE allow 2>$null
 }
 
 # Launcher
@@ -188,6 +214,7 @@ Write-Host "  [+] TR-069 & FOTA updates permanently blocked from upgrading firmw
 Write-Host "  [+] 24+ background telemetry & aggressive RAM killer services disabled"
 Write-Host "  [+] Custom launcher installed and locked as default home"
 Write-Host "  [+] Stock Jio bloatware launcher disabled"
+Write-Host "  [+] Shizuku + Package Installer enabled (carrier app install lock bypassed!)"
 Write-Host "  [+] Aurora Store installed (ready to install YouTube, SmartTube, OTT apps)"
 Write-Host "  [+] Animation scales optimized to 0.5x for snappy responsiveness"
 Write-Host ""

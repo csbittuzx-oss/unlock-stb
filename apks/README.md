@@ -25,12 +25,13 @@ This directory contains verified, tested, and optimized application packages for
   - Allows logging in with an Anonymous Google Session or personal account.
   - Provides direct one-click downloads and updates for official TV apps (YouTube, SmartTube, OTT apps, VLC, MX Player, etc.) directly from Google servers.
 
-## 3. Shevery (`shevery-release.apk`)
-- **Package Name:** `com.hamondev.shevery`
-- **Recommended For:** Privileged Command Execution & Terminal Access on TV.
-- **Features:**
-  - Allows privileged shell commands directly on the TV interface using remote control.
-  - Useful for quick maintenance or viewing active processes without reconnecting PC.
+## 3. Shizuku (`shizuku.apk`) & Package Installer (`package-installer.apk`)
+- **Package Names:** `moe.shizuku.privileged.api`, `io.github.vvb2060.packageinstaller`
+- **Recommended For:** Bypassing the hardcoded carrier sideload restriction (`mSuppressAppInstall = true`).
+- **Why this is essential on Jio STB:**
+  - Reliance Jio / Skyworth hardcoded `mSuppressAppInstall = true` directly inside `/system/priv-app/PackageInstaller/PackageInstaller.apk`, causing standard AOSP package installation to terminate instantly (`finish()`).
+  - Shizuku runs as a privileged ADB/shell daemon (`UID 2000`) and provides system-level package manager services without needing root.
+  - The Shizuku Package Installer registers as the system handler for `.apk` files (`application/vnd.android.package-archive`), enabling direct, seamless on-device APK installations from USB drives, file managers (X-plore), Send Files to TV, and Aptoide TV using the TV remote.
 
 ## 4. Monet Launcher (`monet-launcher.apk`)
 - **Package Name:** `com.klevico.monet`
