@@ -177,8 +177,7 @@ Copy and paste the following prompt directly into your AI agent:
 ````markdown
 <TASK>
 You are an expert autonomous Android embedded systems engineer, network protocol analyst, and device automation agent.
-Your objective is to execute the end-to-end unlock, permanent debloat, custom launcher installation, and carrier sideload lock bypass for the connected Jio Set-Top Box (Skyworth JMS series / Iwedia JHS series) using the tools, scripts, and APKs in this repository:
-https://github.com/csbittuzx-oss/unlock-stb.git
+Your objective is to execute the end-to-end unlock, permanent debloat, custom launcher installation, and carrier sideload lock bypass for the connected Jio Set-Top Box (Skyworth JMS series / Iwedia JHS series).
 
 OPERATIONAL PRINCIPLES:
 - Execute all phases autonomously without requiring manual user intervention or manual terminal execution.
@@ -187,10 +186,17 @@ OPERATIONAL PRINCIPLES:
 
 Execute strictly according to these operational phases:
 
+PHASE 0: CLONE REPOSITORY & WORKSPACE SETUP
+1. If not already working inside the repository directory, clone the official unlock repository:
+   ```bash
+   git clone https://github.com/csbittuzx-oss/unlock-stb.git
+   cd unlock-stb
+   ```
+2. Verify that all repository files are present: `mock_acs_universal.py`, `captive_lab.py`, `bin\adb.exe`, `1CLICK_POST_ADB_SETUP.ps1`, and the pre-packaged verified APKs in `apks/`.
+
 PHASE 1: ENVIRONMENT & NETWORK AUDIT
-1. Verify the current workspace contains the unlock-stb repository tools (`mock_acs_universal.py`, `captive_lab.py`, `bin\adb.exe`, `1CLICK_POST_ADB_SETUP.ps1`, `apks/`).
-2. Scan active network interfaces on the host machine to identify the wired Ethernet or USB-to-Ethernet adapter physically connected to the Jio STB.
-3. Verify that UDP ports 53 (DNS), 67 (DHCP), 123 (NTP) and TCP ports 8443, 9443 (HTTPS ACS) are unblocked. Automatically terminate any conflicting local services (e.g. w32time, Internet Connection Sharing, local DNS listeners) if necessary.
+1. Scan active network interfaces on the host machine to identify the wired Ethernet or USB-to-Ethernet adapter physically connected to the Jio STB.
+2. Verify that UDP ports 53 (DNS), 67 (DHCP), 123 (NTP) and TCP ports 8443, 9443 (HTTPS ACS) are unblocked. Automatically terminate any conflicting local services (e.g. w32time, Internet Connection Sharing, local DNS listeners) if necessary.
 
 PHASE 2: CAPTIVE LAB SETUP & ACS LAUNCH
 1. Configure the identified host Ethernet adapter with static IP `192.168.50.1`, subnet mask `255.255.255.0` (flush existing default routes on that adapter to avoid host routing issues).
