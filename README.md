@@ -3,7 +3,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%20TV%209%20%7C%2011-green.svg)](https://android.com)
-[![Protocol](https://img.shields.io/badge/Exploit-TR--069%20CWMP%20Spoofing-orange.svg)](https://en.wikipedia.org/wiki/TR-069)
+[![Protocol](https://img.shields.io/badge/Protocol-TR--069%20CWMP%20Provisioning-blue.svg)](https://en.wikipedia.org/wiki/TR-069)
 [![Docker Free](https://img.shields.io/badge/Docker-Not%20Required-brightgreen.svg)]()
 
 A comprehensive, zero-Docker, standalone toolkit and documentation for unlocking ADB, permanently disabling bloatware & aggressive telemetry, blocking forced OTA updates, and replacing the restrictive stock launcher with a clean Android TV launcher (Elyvon / Monet) and Aurora Store on Jio Set-Top Boxes.
@@ -26,7 +26,7 @@ A comprehensive, zero-Docker, standalone toolkit and documentation for unlocking
 
 ## Table of Contents
 1. [Supported Device Models](#supported-device-models)
-2. [The Core Mechanism: How TR-069 Spoofing Works](#the-core-mechanism-how-tr-069-spoofing-works)
+2. [The Core Mechanism: How TR-069 CWMP Provisioning Works](#the-core-mechanism-how-tr-069-cwmp-provisioning-works)
 3. [Zero-Docker Direct Ethernet Lab Architecture](#zero-docker-direct-ethernet-lab-architecture)
 4. [Step-by-Step Quick Start Guide](#step-by-step-quick-start-guide)
 5. [Antigravity AI Agent Integration & Master Prompt](#antigravity-ai-agent-integration--master-prompt)
@@ -51,7 +51,7 @@ A comprehensive, zero-Docker, standalone toolkit and documentation for unlocking
 
 ---
 
-## The Core Mechanism: How TR-069 Spoofing Works
+## The Core Mechanism: How TR-069 CWMP Provisioning Works
 
 Jio Set-Top Boxes run a heavily customized firmware with USB Debugging (`adb`) disabled in system settings and the standard Android Developer Options menu hidden. However, telecom operators require remote diagnostic and management capabilities over subscriber equipment.
 
@@ -93,7 +93,7 @@ This repository replaces all of that with a **Zero-Dependency, Direct-Ethernet S
 | [captive_lab.py]                   |             |  192.168.50.2    |
 |   - DHCP Server (UDP 67)           |             |                  |
 |   - DNS Server  (UDP 53)           |             | TR-069 Client    |
-|     Spoofs *.jio.com -> 192.168.50.1             |  connects to:    |
+|     Resolves *.jio.com -> 192.168.50.1           |  connects to:    |
 |                                    |             |  192.168.50.1    |
 | [mock_acs_universal.py]            |             |                  |
 |   - HTTPS ACS Server (TCP 9443)    |             |                  |
@@ -163,7 +163,7 @@ When given the master prompt below, Antigravity will:
 1. **Clone & Target Workspace:** Utilize the repository at `https://github.com/csbittuzx-oss/unlock-stb.git` and its included zero-dependency tools (`bin\adb.exe`, `mock_acs_universal.py`, `captive_lab.py`, verified APKs in `apks/`).
 2. **Environment & Port Conflict Resolution:** Automatically inspect network adapters, identify the connected Ethernet interface, clear conflicting UDP/TCP ports (53, 67, 123, 8443, 9443), and adjust Windows Defender firewall rules.
 3. **Background Lab Management:** Launch `captive_lab.py` and `mock_acs_universal.py` as asynchronous background tasks, monitor logs in real time, and prompt you only when it is time to physically power-cycle the STB.
-4. **Reactive Handshake & ADB Connect:** Intercept the TR-069 `Inform` request, push the `USBDebugging` activation payload, verify the STB on `192.168.50.2:5555`, and establish an authenticated ADB session.
+4. **Reactive Handshake & ADB Connect:** Receive the TR-069 `Inform` request, push the `USBDebugging` activation payload, verify the STB on `192.168.50.2:5555`, and establish an authenticated ADB session.
 5. **Debloat & Security Hardening:** Permanently block FOTA/TR-069 update daemons, disable 24+ telemetry trackers and aggressive memory killers, and uninstall stock bloatware.
 6. **Launcher & Sideload Lock Bypass:** Install your choice of Android TV launcher (Elyvon/Monet), lock it as default home, disable stock Jio launcher, install Aurora Store, and deploy **Shizuku + Shizuku Package Installer** (pre-authorizing permissions and disabling the carrier's suppressed installer) so that USB, Send Files to TV, X-plore, and Aptoide TV APK installations work out of the box.
 7. **Host Network Restoration & Verification:** Restore your PC's Ethernet adapter back to automatic DHCP and confirm custom launcher operation.
@@ -201,7 +201,7 @@ PHASE 1: ENVIRONMENT & NETWORK AUDIT
 PHASE 2: CAPTIVE LAB SETUP & ACS LAUNCH
 1. Configure the identified host Ethernet adapter with static IP `192.168.50.1`, subnet mask `255.255.255.0` (flush existing default routes on that adapter to avoid host routing issues).
 2. Configure host firewall rules to allow inbound traffic on UDP 53, 67, 123 and TCP 8443, 9443.
-3. Launch `captive_lab.py` as an asynchronous background task to provide captive DHCP (leasing `192.168.50.2` to the STB) and DNS spoofing (`*.jio.com` -> `192.168.50.1`).
+3. Launch `captive_lab.py` as an asynchronous background task to provide local DHCP service (leasing `192.168.50.2` to the STB) and local DNS name resolution (`*.jio.com` -> `192.168.50.1`) for local ACS management.
 4. Launch `mock_acs_universal.py` with appropriate certificate parameters in the background to handle the TR-069 HTTPS CWMP session.
 5. Instruct the user clearly: "Please unplug the power cable from the back of your Jio STB, wait 5 seconds, and plug it back in."
 6. Monitor `captive_lab.log` and `mock_acs.log` in real time. Wait for the STB to boot, issue a DHCP request, query DNS, initiate the TLS handshake, perform HTTP Digest Authentication, and receive the SetParameterValues SOAP payload enabling `USBDebugging` and disabling `FOTA`.
@@ -212,9 +212,9 @@ PHASE 3: ADB CONNECTION & DEVICE VERIFICATION
 3. Query device properties via `adb shell getprop` to record `ro.product.model`, `ro.build.version.release`, `ro.build.display.id`, and `ro.boot.vbmeta.device_state`.
 
 PHASE 4: SYSTEM DEBLOAT & UPDATE IMMUNIZATION
-1. Immunize against remote bricking & OTA updates by disabling all update daemons for user 0:
+1. Protect against unwanted OTA updates by disabling update daemons for user 0:
    `com.jio.httpupdate`, `com.jio.usbupdate`, `com.jio.tr069client`, `com.rjil.jio.stb.commandreceiver`, `com.jio.backgroundscheduler`, `com.jio.stbadservice`
-2. Disable aggressive background task killers, telemetry loggers, and diagnostic spies:
+2. Disable aggressive background task killers, telemetry loggers, and diagnostic monitors:
    `com.teamviewer.quicksupport.addon.jio_stb`, `com.rjil.podlogservice`, `com.jio.systemstats`, `com.jio.stb.remotediagnose`, `com.jio.smartmemorymanager`, `com.jio.appoptimizer`, `com.jio.bioscopecontentservice`, `com.jio.product.exploremyremote`, `com.jio.stb.bot`, `com.jio.stbwidget`, `com.jio.web`, `com.media.jio.sso.stb`, `com.jio.profileutility`, `com.netflix.partnertoken`, `com.jio.dialserver`, `com.omni.simplesetup`, `com.jio.universalsetup`
 3. Restrict background AppOps execution for all disabled packages (`RUN_IN_BACKGROUND ignore`, `RUN_ANY_IN_BACKGROUND ignore`).
 4. Remove pre-installed non-essential user bloatware:
@@ -358,7 +358,7 @@ Every single issue documented below was observed and resolved during real-world 
 - **Permanent Fix:** Use **Shizuku** paired with the **Shizuku Package Installer** (`io.github.vvb2060.packageinstaller`):
   1. Shizuku runs a privileged daemon under ADB/shell UID 2000 (`libshizuku.so`), exposing system package management capabilities without root.
   2. The Shizuku Package Installer registers as the primary system handler for `application/vnd.android.package-archive` intents.
-  3. When an APK is opened from a USB flash drive, X-plore, Send Files to TV, or Aptoide TV, Shizuku Package Installer intercepts the intent, presents a clean, remote-friendly confirmation dialog, and installs the APK with system privileges.
+  3. When an APK is opened from a USB flash drive, X-plore, Send Files to TV, or Aptoide TV, Shizuku Package Installer handles the intent, presents a clean, remote-friendly confirmation dialog, and installs the APK with system privileges.
   4. Both Shizuku and Package Installer are automatically installed, started, and pre-authorized by `1CLICK_POST_ADB_SETUP.bat`.
 
 ---
