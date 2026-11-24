@@ -148,13 +148,15 @@ if (Test-Path $pkgInstallerApk) {
     Write-Host "  -> Installing Shizuku Package Installer (Direct TV Remote APK Sideloading)..." -ForegroundColor Cyan
     & $adb install -r -g $pkgInstallerApk 2>$null
     
-    # Pre-authorize Package Installer in Shizuku's config database
-    Write-Host "  -> Pre-authorizing Package Installer in Shizuku..." -ForegroundColor Cyan
+    # Pre-authorize Package Installer & Aurora Store in Shizuku's config database
+    Write-Host "  -> Pre-authorizing Package Installer & Aurora Store in Shizuku..." -ForegroundColor Cyan
     $pkgUid = ((& $adb shell "dumpsys package io.github.vvb2060.packageinstaller | grep userId=").Trim() -replace 'userId=','').Trim()
-    if ($pkgUid) {
-        $shizukuConfig = "{`"version`":2,`"packages`":[{`"uid`":$pkgUid,`"flags`":2,`"packages`":[`"io.github.vvb2060.packageinstaller`"]}]}"
-        & $adb shell "echo '$shizukuConfig' > /data/user_de/0/com.android.shell/shizuku.json && chmod 666 /data/user_de/0/com.android.shell/shizuku.json" 2>$null
-    }
+    $auroraUid = ((& $adb shell "dumpsys package com.aurora.store | grep userId=").Trim() -replace 'userId=','').Trim()
+    $entries = @()
+    if ($pkgUid) { $entries += "{`"uid`":$pkgUid,`"flags`":2,`"packages`":[`"io.github.vvb2060.packageinstaller`"]}" }
+    if ($auroraUid) { $entries += "{`"uid`":$auroraUid,`"flags`":2,`"packages`":[`"com.aurora.store`"]}" }
+    $shizukuConfig = "{`"version`":2,`"packages`":[" + ($entries -join ",") + "]}"
+    & $adb shell "echo '$shizukuConfig' > /data/user_de/0/com.android.shell/shizuku.json && chmod 666 /data/user_de/0/com.android.shell/shizuku.json" 2>$null
     
     # Grant permissions
     & $adb shell appops set io.github.vvb2060.packageinstaller REQUEST_INSTALL_PACKAGES allow 2>$null
